@@ -22,7 +22,7 @@ public class Application {
 
 	private static Application application;
 	public static final int EULA = 1;
-	private static final int VersionCode = 20;
+	private static final int VersionCode = 30;
 	private String SenderId;
 	Context context;
 	ApplicationDB appDB;

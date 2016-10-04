@@ -57,6 +57,7 @@ public class SaveRegIdCommand extends Command {
 					.appendQueryParameter("regid", regId)
 					.appendQueryParameter("iid", iid)
 					.appendQueryParameter("tz", timeZone)
+					.appendQueryParameter("platform", "Android")
 					.appendQueryParameter("app_version", String.valueOf(app.getCurrentAppVersionCode()));
 
 			String parameterQuery = uriBuilder.build().getEncodedQuery();
