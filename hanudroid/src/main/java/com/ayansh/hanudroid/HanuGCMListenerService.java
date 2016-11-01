@@ -23,7 +23,8 @@ public abstract class HanuGCMListenerService extends GcmListenerService implemen
 		//String collapseKey = intent.getExtras().getString("collapse_key");
 		
 		// Gen Validation
-		if(from.contentEquals(app.getSenderId())){
+		String sender_id = app.getSenderId();
+		if(sender_id != null && from.contentEquals(sender_id)){
 			
 			// User / Pwd is sent by our server. So save it.
 			if(message.contentEquals("UserData")){
@@ -36,8 +37,13 @@ public abstract class HanuGCMListenerService extends GcmListenerService implemen
 			}
 			
 			if(message.contentEquals("PerformSync")){
-				Log.v(Application.TAG, "Message to Perform Sync recieved from GCM");
+				Log.v(Application.TAG, "Message to Perform Sync received from GCM");
 				return performSync();
+			}
+
+			if(message.contentEquals("PingMessage")){
+				Log.v(Application.TAG, "Ping Message received from GCM");
+				return new ResultObject();
 			}
 			
 			if(message.contentEquals("SyncAll")){

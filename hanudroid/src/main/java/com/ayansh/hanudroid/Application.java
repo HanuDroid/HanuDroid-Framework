@@ -410,6 +410,9 @@ public class Application {
 	}
 
 	public String getSenderId() {
+		if(SenderId == null){
+			SenderId = getStringFromResource("gcm_sender_id");
+		}
 		return SenderId;
 	}
 

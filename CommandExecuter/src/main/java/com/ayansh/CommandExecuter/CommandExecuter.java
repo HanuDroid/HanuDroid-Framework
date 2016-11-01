@@ -57,7 +57,9 @@ public final class CommandExecuter extends AsyncTask<Command, ProgressInfo, Resu
 	}
 	
 	protected void onCancelled(ResultObject result){
-		result.command.caller.NotifyCommandExecuted(result);
+		if(result != null &&  result.command != null && result.command.caller != null){
+			result.command.caller.NotifyCommandExecuted(result);
+		}
 	}
 	
 	void PublishProgress(ProgressInfo progress){
