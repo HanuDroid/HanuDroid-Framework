@@ -142,8 +142,10 @@ public class DownloadPostsCommand extends Command {
 		}
 
 		if(allSuccess){
-			// If All success, then set sync time to now.
-			app.addParameter("LastSyncTime", String.valueOf((new Date()).getTime() - 2*60*1000));
+			// If All success, then set sync time to the time when we fetched artifacts
+			//app.addParameter("LastSyncTime", String.valueOf((new Date()).getTime() - 2*60*1000));
+			long time = PostManager.getInstance().lastFetchTime.getTime();
+			app.addParameter("LastSyncTime", String.valueOf(time));
 			Log.v(Application.TAG, "All posts downloaded successfully...");
 		}
 		else{

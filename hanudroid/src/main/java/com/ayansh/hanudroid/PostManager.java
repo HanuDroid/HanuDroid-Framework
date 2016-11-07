@@ -3,6 +3,7 @@ package com.ayansh.hanudroid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,8 +17,10 @@ public class PostManager {
 	private static PostManager pm;
 	
 	List<PostArtifact> postArtifacts;				// Post artifacts from Internet
-	List<Post> downloadPostList;					// List downloaded from Internet 
-	
+	List<Post> downloadPostList;					// List downloaded from Internet
+
+	Date lastFetchTime = new Date();				// Last time we fetched Artifacts from DB
+
 	HashMap<Integer, PostArtifact> dbPostArtifacts;	// Current DB Post Artifacts
 	private List<Post> postList;					// List selected from DB.
 	private HashMap<Integer,Post> postMap;			// Map of Post ID <-> Post

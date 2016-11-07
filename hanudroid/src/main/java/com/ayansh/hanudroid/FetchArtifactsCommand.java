@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import org.json.JSONObject;
@@ -31,10 +32,14 @@ public class FetchArtifactsCommand extends Command {
 	@Override
 	protected void execute(ResultObject result) throws Exception {
 		// Fetch the post artifacts.
-		
+
 		Application app = Application.getApplicationInstance();
+
+		// Time in GMT Now
+		Calendar now = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		PostManager.getInstance().lastFetchTime.setTime(now.getTimeInMillis());
+
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		
 		String modTime = Application.getApplicationInstance().getOptions().get("LastSyncTime");
 		
 		if(modTime == null || modTime.contentEquals("")){
@@ -50,10 +55,14 @@ public class FetchArtifactsCommand extends Command {
 		}
 		
 		Log.v(Application.TAG, "Trying to fetch post artifacts.");
-		
+
+		String iid = app.getOptions().get("InstanceID");
 		String lastSyncTime = df.format(date);
+
+		/*	No need to set specifically as we will save GMT time itself.
 		df.setTimeZone(TimeZone.getTimeZone("GMT"));
 		lastSyncTime = df.format(date);
+		*/
 
 		ArtifactsXMLParser xml_parser = new ArtifactsXMLParser();
 
@@ -84,6 +93,7 @@ public class FetchArtifactsCommand extends Command {
 
 			Uri.Builder uriBuilder = new Uri.Builder()
 					.appendQueryParameter("modified_time", lastSyncTime)
+					.appendQueryParameter("iid", iid)
 					.appendQueryParameter("sync_params", syncParams.toString());
 			String parameterQuery = uriBuilder.build().getEncodedQuery();
 

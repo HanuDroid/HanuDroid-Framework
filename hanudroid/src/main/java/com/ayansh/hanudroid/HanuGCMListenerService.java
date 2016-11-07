@@ -9,6 +9,10 @@ import com.ayansh.CommandExecuter.ProgressInfo;
 import com.ayansh.CommandExecuter.ResultObject;
 import com.google.android.gms.gcm.GcmListenerService;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 public abstract class HanuGCMListenerService extends GcmListenerService implements Invoker {
 	
 
@@ -37,8 +41,28 @@ public abstract class HanuGCMListenerService extends GcmListenerService implemen
 			}
 			
 			if(message.contentEquals("PerformSync")){
+
 				Log.v(Application.TAG, "Message to Perform Sync received from GCM");
-				return performSync();
+
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				String latest_data_timestamp_string = data.getString("latest_data_timestamp","2011-11-04 23:02:00");
+
+				try{
+
+					Date lastUpdateTime = df.parse(latest_data_timestamp_string);
+					long latestTime = lastUpdateTime.getTime();
+
+					long modTime = Long.valueOf(app.getOptions().get("LastSyncTime"));
+
+					if(modTime < latestTime){
+						// Need to sync.
+						return performSync();
+					}
+
+				}catch(Exception e){
+					return performSync();
+				}
+
 			}
 
 			if(message.contentEquals("PingMessage")){
