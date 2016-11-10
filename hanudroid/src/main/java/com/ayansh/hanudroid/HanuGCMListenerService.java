@@ -45,7 +45,9 @@ public abstract class HanuGCMListenerService extends GcmListenerService implemen
 				Log.v(Application.TAG, "Message to Perform Sync received from GCM");
 
 				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				String latest_data_timestamp_string = data.getString("latest_data_timestamp","2011-11-04 23:02:00");
+				df.setTimeZone(TimeZone.getTimeZone("GMT"));	// Very Important to set this.
+
+				String latest_data_timestamp_string = data.getString("latest_data_timestamp","hanu");
 
 				try{
 

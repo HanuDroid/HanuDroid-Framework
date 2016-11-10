@@ -80,6 +80,7 @@ public class Application {
 	            GoogleAnalytics analytics = GoogleAnalytics.getInstance(context);
 	            int id = context.getResources().getIdentifier("global_tracker", "xml", context.getPackageName());
 	            tracker = analytics.newTracker(id);
+				tracker.enableAdvertisingIdCollection(true);
 	        }
 			
 		}

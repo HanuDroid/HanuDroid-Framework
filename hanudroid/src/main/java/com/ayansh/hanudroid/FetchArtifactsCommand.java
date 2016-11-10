@@ -57,12 +57,11 @@ public class FetchArtifactsCommand extends Command {
 		Log.v(Application.TAG, "Trying to fetch post artifacts.");
 
 		String iid = app.getOptions().get("InstanceID");
+
+		// It is important  to set the TimeZone to GMT
+		df.setTimeZone(TimeZone.getTimeZone("GMT"));
 		String lastSyncTime = df.format(date);
 
-		/*	No need to set specifically as we will save GMT time itself.
-		df.setTimeZone(TimeZone.getTimeZone("GMT"));
-		lastSyncTime = df.format(date);
-		*/
 
 		ArtifactsXMLParser xml_parser = new ArtifactsXMLParser();
 
