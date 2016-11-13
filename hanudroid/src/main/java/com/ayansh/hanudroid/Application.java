@@ -1,15 +1,5 @@
 package com.ayansh.hanudroid;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import com.ayansh.CommandExecuter.CommandExecuter;
-import com.ayansh.CommandExecuter.Invoker;
-import com.ayansh.CommandExecuter.MultiCommand;
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
-
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -17,6 +7,14 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.DatabaseUtils;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.ayansh.CommandExecuter.CommandExecuter;
+import com.ayansh.CommandExecuter.Invoker;
+import com.ayansh.CommandExecuter.MultiCommand;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Application {
 
@@ -31,8 +29,7 @@ public class Application {
 	String blogURL;
 	String DIR;
 	private CommandExecuter ce;
-	private Tracker tracker;
-	
+
 	String titleColor, titleFont, pubDateColor, pubDateFont, contentColor, contentFont;
 	String taxonomyColor, taxonomyFont;
 	
@@ -73,16 +70,7 @@ public class Application {
 			contentFont = getStringFromResource("content_font");
 			taxonomyColor = getStringFromResource("taxonomy_color");
 			taxonomyFont = getStringFromResource("taxonomy_font");
-			
-			// Initialize Google Analytics tracker
-			if (tracker == null) {
-				
-	            GoogleAnalytics analytics = GoogleAnalytics.getInstance(context);
-	            int id = context.getResources().getIdentifier("global_tracker", "xml", context.getPackageName());
-	            tracker = analytics.newTracker(id);
-				tracker.enableAdvertisingIdCollection(true);
-	        }
-			
+
 		}
 
 	}

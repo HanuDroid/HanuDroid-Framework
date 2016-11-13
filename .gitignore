@@ -39,3 +39,4 @@ proguard/
 
 #IML Files
 *.iml
+/.idea/vcs.xml
