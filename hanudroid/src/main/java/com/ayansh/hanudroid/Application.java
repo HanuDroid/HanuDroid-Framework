@@ -329,7 +329,7 @@ public class Application {
 		addParameter("AppVersionCode", String.valueOf(getCurrentAppVersionCode()));
 	}
 	
-	protected int getCurrentAppVersionCode(){
+	public int getCurrentAppVersionCode(){
 		
 		int version;
 		try {
