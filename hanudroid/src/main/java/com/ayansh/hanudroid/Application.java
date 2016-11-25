@@ -11,6 +11,7 @@ import android.util.Log;
 import com.ayansh.CommandExecuter.CommandExecuter;
 import com.ayansh.CommandExecuter.Invoker;
 import com.ayansh.CommandExecuter.MultiCommand;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ public class Application {
 	String blogURL;
 	String DIR;
 	private CommandExecuter ce;
+	private FirebaseAnalytics mFirebaseAnalytics;
 
 	String titleColor, titleFont, pubDateColor, pubDateFont, contentColor, contentFont;
 	String taxonomyColor, taxonomyFont;
@@ -70,6 +72,9 @@ public class Application {
 			contentFont = getStringFromResource("content_font");
 			taxonomyColor = getStringFromResource("taxonomy_color");
 			taxonomyFont = getStringFromResource("taxonomy_font");
+
+			// Firebase
+			mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
 
 		}
 
