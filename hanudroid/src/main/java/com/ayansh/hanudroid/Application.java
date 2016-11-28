@@ -141,6 +141,10 @@ public class Application {
 			return true;
 		}		
 	}
+
+	public FirebaseAnalytics getFirebaseAnalytics(){
+		return mFirebaseAnalytics;
+	}
 	
 	// Initialize the app for other usage.
 	public void initialize(Invoker caller){
