@@ -73,7 +73,7 @@ public abstract class HanuFCMMessagingService extends FirebaseMessagingService i
 
 		if(message.contentEquals("SyncAll")){
 			Log.v(Application.TAG, "Message to Perform Sync-All recieved from GCM");
-			Application.getApplicationInstance().getOptions().put("LastSyncTime", "1349328720");
+			app.getOptions().put("LastSyncTime", "1349328720");
 			return performSync();
 		}
 
@@ -90,7 +90,22 @@ public abstract class HanuFCMMessagingService extends FirebaseMessagingService i
 				app.deletePost(postId);
 			}
 		}
-			
+
+		if(message.contentEquals("SetParameter")) {
+
+			String param_name = data.get("ParameterName");
+			String param_value = data.get("ParameterValue");
+			String overwrite = data.get("Overwrite");
+
+			if(app.getOptions().containsKey(param_name)){
+				if(overwrite.contentEquals("X")){
+					app.addParameter(param_name,param_value);
+				}
+			}
+			else{
+				app.addParameter(param_name,param_value);
+			}
+		}
 
 		return new ResultObject();
 		

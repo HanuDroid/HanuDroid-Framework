@@ -1,5 +1,6 @@
 package com.ayansh.hanudroid;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -228,7 +229,25 @@ public class PostManager {
 		postList.remove(postMap.get(postId));
 		postMap.remove(postId);
 		dbPostArtifacts.remove(postId);
-		
+
+		// Delete the post files
+		File dir = Application.getApplicationInstance().FilesDirectory;
+		File post_folder = new File(dir,String.valueOf(postId));
+		if(post_folder.exists()){
+			deleteRecursive(post_folder);
+		}
+
+	}
+
+	private void deleteRecursive(File fileOrDirectory) {
+
+		if (fileOrDirectory.isDirectory()) {
+			for (File child : fileOrDirectory.listFiles()) {
+				deleteRecursive(child);
+			}
+		}
+
+		fileOrDirectory.delete();
 	}
 
 	public Collection<String> getTitlesOfNewPosts() {

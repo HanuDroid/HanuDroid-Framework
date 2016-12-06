@@ -13,6 +13,7 @@ import com.ayansh.CommandExecuter.Invoker;
 import com.ayansh.CommandExecuter.MultiCommand;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,7 @@ public class Application {
 	public static String TAG;
 	private static String appName;
 	String blogURL;
-	String DIR;
+	File FilesDirectory;
 	private CommandExecuter ce;
 	private FirebaseAnalytics mFirebaseAnalytics;
 
@@ -126,7 +127,7 @@ public class Application {
 		int id = context.getResources().getIdentifier("BlogURL", "string", context.getPackageName());
 		blogURL = context.getResources().getString(id);
 		
-		DIR = "/Android/data/." + context.getPackageName();
+		FilesDirectory = context.getFilesDir();
 		
 	}
 
@@ -375,7 +376,14 @@ public class Application {
 			oldCat = cat + ",";
 		}
 		else{
-			oldCat += cat + ",";
+
+			if(oldCat.contains(cat)){
+				// Nothing. We already have this category.
+			}
+			else{
+				oldCat += cat + ",";
+			}
+
 		}
 		
 		oldCat = oldCat.substring(0, oldCat.length()-1);

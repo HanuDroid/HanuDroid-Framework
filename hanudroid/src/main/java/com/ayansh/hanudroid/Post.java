@@ -82,7 +82,7 @@ public class Post {
 				e = subStr.indexOf('"' , s);
 				subStr = subStr.substring(s,e);	// This is Image URL.
 				
-				index = subStr.indexOf(".");
+				index = subStr.lastIndexOf(".");
 				fileName = subStr.substring(index, index + 4);
 				fileName = String.valueOf(Id) + "-" + counter + fileName;
 				
@@ -90,10 +90,9 @@ public class Post {
 				downloadImage(subStr, fileName);
 					
 				// If download is success. Replace the File name
-				String dir = Application.getApplicationInstance().DIR;				
-				File root = Environment.getExternalStorageDirectory();
-				File directory = new File(root, dir);
-				String imgSrc = "<img class=\"alignnone\" src=\"file:" + directory + "/" + fileName + "\">";
+				File dir = Application.getApplicationInstance().FilesDirectory;
+				File post_folder = new File(dir,String.valueOf(Id));
+				String imgSrc = "<img class=\"alignnone\" src=\"file:" + post_folder + "/" + fileName + "\">";
 				
 				content = content.replace(replaceStr, imgSrc);				
 				counter++;
@@ -247,18 +246,16 @@ public class Post {
 	private void  downloadImage(String imageURL, String fileName) throws Exception{
 		
 		Log.v(Application.TAG, "Downloading Image for post...");
-		String dir = Application.getApplicationInstance().DIR;
-		
-		// Create directory if it does not exists yet...
-		File root = Environment.getExternalStorageDirectory();
-		File directory = new File(root, dir);
-		File image_file = new File(directory, fileName);
-		
-		if (directory.exists()){}
-		else{
-			directory.mkdirs();
+		File dir = Application.getApplicationInstance().FilesDirectory;
+		File post_folder = new File(dir,String.valueOf(Id));
+
+		if(!post_folder.exists()){
+			post_folder.mkdir();
 		}
-		
+
+		// Create directory if it does not exists yet...
+		File image_file = new File(post_folder, fileName);
+
 		URL url = new URL(imageURL);
 			
 		/* Open a connection to that URL. */
