@@ -131,6 +131,10 @@ public class Application {
 		
 	}
 
+	public File getFilesDirectory(){
+		return  FilesDirectory;
+	}
+
 	// Check if this is the first Usage !
 	public boolean isThisFirstUse(){
 		
@@ -373,7 +377,7 @@ public class Application {
 		
 		String oldCat = Options.get("SyncCategory");
 		if(oldCat == null || oldCat.contentEquals("")){	
-			oldCat = cat + ",";
+			oldCat = cat;
 		}
 		else{
 
@@ -381,12 +385,11 @@ public class Application {
 				// Nothing. We already have this category.
 			}
 			else{
-				oldCat += cat + ",";
+				oldCat = oldCat + "," + cat;
 			}
 
 		}
 		
-		oldCat = oldCat.substring(0, oldCat.length()-1);
 		addParameter("SyncCategory", oldCat);
 	}
 	
@@ -404,14 +407,17 @@ public class Application {
 				
 				if(cat.contentEquals(oldCategories[i])){ }
 				else{
-					newCategories += oldCategories[i] + ",";
+					if(newCategories.contentEquals("")){
+						newCategories = oldCategories[i];
+					}
+					else{
+						newCategories = newCategories + "," + oldCategories[i];
+					}
+
 				}
 			}
 		}
-		
-		if(newCategories.length() > 0){
-			newCategories = newCategories.substring(0, newCategories.length()-1);
-		}
+
 		addParameter("SyncCategory", newCategories);
 	}
 

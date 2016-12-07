@@ -71,11 +71,11 @@ public class Post {
 			start = content.indexOf("<a", newStart);
 			end = content.indexOf("</a>", newStart);
 			
-			if(start > 0 && end > 0){
+			if(start >= 0 && end > 0){
 				subStr = content.substring(start, end);
 			}
 			
-			if(start > 0 && end > 0 && subStr.contains("<img")){
+			if(start >= 0 && end > 0 && subStr.contains("<img")){
 				// We found something.
 				replaceStr = subStr = content.substring(start, end);
 				s = subStr.indexOf("src=\"") + 5;
@@ -547,5 +547,28 @@ public class Post {
 		
 		return Float.valueOf(rating);
 	}
-	
+
+	public boolean hasCategory(String category){
+
+        boolean has_category = false;
+        Iterator<String> i = getCategories().iterator();
+        while(i.hasNext()){
+            if(i.next().contentEquals(category)){
+                has_category = true;
+            }
+        }
+        return has_category;
+    }
+
+    public boolean hasTag(String tag){
+
+        boolean has_tag = false;
+        Iterator<String> i = getTags().iterator();
+        while(i.hasNext()){
+            if(i.next().contentEquals(tag)){
+                has_tag = true;
+            }
+        }
+        return has_tag;
+    }
 }
