@@ -2,6 +2,7 @@ package com.ayansh.hanudroid;
 
 import android.util.Log;
 
+import com.ayansh.CommandExecuter.Command;
 import com.ayansh.CommandExecuter.Invoker;
 import com.ayansh.CommandExecuter.MultiCommand;
 import com.ayansh.CommandExecuter.ProgressInfo;
@@ -14,7 +15,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
-public abstract class HanuFCMMessagingService extends FirebaseMessagingService implements Invoker {
+public abstract class HanuFCMMessagingService extends FirebaseMessagingService {
 	
 
 	protected ResultObject processMessage(RemoteMessage remoteMessage) {
@@ -79,7 +80,7 @@ public abstract class HanuFCMMessagingService extends FirebaseMessagingService i
 
 		if(message.contentEquals("SyncPostIds")){
 			String postIds = data.get("PostIds");
-			DownloadIndividualPostsCommand command = new DownloadIndividualPostsCommand(this,postIds);
+			DownloadIndividualPostsCommand command = new DownloadIndividualPostsCommand(Command.DUMMY_CALLER,postIds);
 			return command.execute();
 		}
 
@@ -110,37 +111,26 @@ public abstract class HanuFCMMessagingService extends FirebaseMessagingService i
 		return new ResultObject();
 		
 	}
-	
+
 	private ResultObject performSync(){
-		
-		MultiCommand command = new MultiCommand(this);
-		
-		FetchArtifactsCommand fetchArtifacts = new FetchArtifactsCommand(this);
+
+		MultiCommand command = new MultiCommand(Command.DUMMY_CALLER);
+
+		FetchArtifactsCommand fetchArtifacts = new FetchArtifactsCommand(Command.DUMMY_CALLER);
 		command.addCommand(fetchArtifacts);
-		
-		DownloadPostsCommand downloadPosts = new DownloadPostsCommand(this);
+
+		DownloadPostsCommand downloadPosts = new DownloadPostsCommand(Command.DUMMY_CALLER);
 		command.addCommand(downloadPosts);
-		
+
 		// Sync Ratings
-		SyncRatingsCommand syncRating = new SyncRatingsCommand(this);
+		SyncRatingsCommand syncRating = new SyncRatingsCommand(Command.DUMMY_CALLER);
 		command.addCommand(syncRating);
-		
+
 		// Update Post Meta
-		UpdatePostMetaCommand updatePostMeta = new UpdatePostMetaCommand(this);
+		UpdatePostMetaCommand updatePostMeta = new UpdatePostMetaCommand(Command.DUMMY_CALLER);
 		command.addCommand(updatePostMeta);
-		
+
 		return command.execute();
-	}
-
-	@Override
-	public void NotifyCommandExecuted(ResultObject result) {
-		// Nothing to do
-	}
-
-	@Override
-	public void ProgressUpdate(ProgressInfo result) {
-		// Nothing to do
-		
 	}
 
 }
