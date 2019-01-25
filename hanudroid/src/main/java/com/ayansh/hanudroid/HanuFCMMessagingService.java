@@ -7,6 +7,7 @@ import com.ayansh.CommandExecuter.Invoker;
 import com.ayansh.CommandExecuter.MultiCommand;
 import com.ayansh.CommandExecuter.ProgressInfo;
 import com.ayansh.CommandExecuter.ResultObject;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -131,6 +132,34 @@ public abstract class HanuFCMMessagingService extends FirebaseMessagingService {
 		command.addCommand(updatePostMeta);
 
 		return command.execute();
+	}
+
+	@Override
+	public void onNewToken(String token) {
+
+		// When this is called, refresh tokens.
+
+		Application app = Application.getApplicationInstance();
+
+		app.addParameter("RegistrationStatus", "");
+		app.addParameter("RegistrationId", "");
+
+		try {
+
+			FirebaseInstanceId instanceID = FirebaseInstanceId.getInstance();
+			String iid = instanceID.getId();
+			app.addParameter("InstanceID", iid);
+
+			// Implement this method to send any registration to your app's servers.
+			Log.v(Application.TAG, "Registration with FCM success");
+			Application.getApplicationInstance().addParameter("RegistrationId", token);
+
+			SaveRegIdCommand command = new SaveRegIdCommand(Command.DUMMY_CALLER, token);
+			command.execute();
+
+		} catch (Exception e) {
+			// Ignore
+		}
 	}
 
 }
