@@ -23,7 +23,7 @@ public class ApplicationDB extends SQLiteOpenHelper {
 	
 	static ApplicationDB getInstance(Context context){
 		
-		DBVersion = 2;
+		DBVersion = 3;
 		String appName = Application.getApplicationName(context);
 		DBName = "HANU_" + appName + "_DB";
 		
@@ -106,71 +106,35 @@ public class ApplicationDB extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Nothing to do as of now.
-		if(newVersion == 2 && oldVersion == 1){
-			/*
-			 *  Upgrading from version 1 to 2
-			 *  Create new FTS4 tables and build index fully.
-			 */
-			
-			try {
-				// Create Tables.
-				Log.i(Application.TAG, "Upgrading Tables from Version: 1 to version 2");
-				
-				// Rename  columns because sadly content is reserved key work in FTS3 / FTS4 :(
-				renameColumns(db);
-				
-				Log.i(Application.TAG, "Upgrade of tables successfully");
-							
-			} catch (SQLException e) {
-				Log.e(Application.TAG, e.getMessage(), e);
-			}
-			
-		}
 
-	}
-	
-	private void renameColumns(SQLiteDatabase db) throws SQLException{
-		// Rename Column
-		
-		String renamePostTable = "ALTER TABLE Post RENAME TO PostTemp";
-		String createPostsTable = createPostsTable();
-		String copyPostData = "INSERT INTO Post SELECT * FROM PostTemp";
-		String dropPostTemp = "DROP TABLE PostTemp";
-		
-		
-		String renameCommentsTable = "ALTER TABLE Comments RENAME TO CommentsTemp";
-		String createCommentsTable = createCommentsTable();
-		String copyCommentsData = "INSERT INTO Comments SELECT * FROM CommentsTemp";
-		String dropCommentsTemp = "DROP TABLE CommentsTemp";
-		
-		try{
-			db.beginTransaction();
-			
-			// Rename old table to temp table and create a new one.
-			db.execSQL(renamePostTable);
-			db.execSQL(createPostsTable);
-			
-			db.execSQL(renameCommentsTable);
-			db.execSQL(createCommentsTable);
-			
-			// Now create FTS tables and triggers.
-			createFTSTables(db);
-			
-			// Now copy data from temp to actual table and drop temp table.
-			// So no need to rebuild the index
-			db.execSQL(copyPostData);
-			db.execSQL(dropPostTemp);
-			
-			db.execSQL(copyCommentsData);
-			db.execSQL(dropCommentsTemp);
-			
-			db.setTransactionSuccessful();
-			db.endTransaction();
-			Log.i(Application.TAG, "Renaming the columns finished");
+		switch (oldVersion){
+
+			case 2:
+				updatePostTable(db);
+				break;	// Add for now. Remove later on
+
+			default:
+				break;
+
 		}
-		catch (SQLException e){
-			db.endTransaction();
-			throw e;
+	}
+
+	private void updatePostTable(SQLiteDatabase db){
+
+		try {
+			// Create Tables.
+			Log.i(Application.TAG, "Upgrading Tables from Version: 2 to version 3");
+
+			String addFavColumn = "ALTER TABLE Post ADD COLUMN IsFav INTEGER DEFAULT 0";
+			String addViewCountColumn = "ALTER TABLE Post ADD COLUMN ViewCount INTEGER DEFAULT 0";
+
+			db.execSQL(addFavColumn);
+			db.execSQL(addViewCountColumn);
+
+			Log.i(Application.TAG, "Upgrade of tables successfully");
+
+		} catch (SQLException e) {
+			Log.e(Application.TAG, e.getMessage(), e);
 		}
 	}
 
@@ -236,7 +200,9 @@ public class ApplicationDB extends SQLiteOpenHelper {
 				"ModDate INTEGER, " + 			// Modified Date
 				"Author VARCHAR(10), " + 		// Author
 				"Title VARCHAR(20), " +			// Title of post
-				"PostContent TEXT" +		 	// Post Content
+				"PostContent TEXT, " +		 	// Post Content
+				"IsFav INTEGER, " + 			// Is Favourite
+				"ViewCount INTEGER" + 			// View Count
 				")";
 		
 		return createPostsTable;
@@ -347,32 +313,18 @@ public class ApplicationDB extends SQLiteOpenHelper {
 		
 	}
 
-	synchronized void loadPost(String taxonomy, String name) {
-		// Load Posts
-		String selection = null;
+	synchronized void loadFavouritePost() {
+		// Load Favourite Posts
+		String selection = "IsFav=1";
 		Cursor postCursor;
 		PostManager pm = PostManager.getInstance();
 		Post post;
 		
 		// Clear List before adding.
 		pm.clearDBPostList();
-		
-		if(taxonomy != null && name != null){
-			
-			if(taxonomy.contentEquals("author")){
-				selection = "Author='" + name + "'";
-				postCursor = data_base.query("Post", null, selection, null, null, null, "PubDate DESC");
-			}
-			else{
-				selection = "Taxonomy='" + taxonomy + "' AND Name='" + name + "'";
-				postCursor = data_base.query("PostTerm", null, selection, null, null, null, "PubDate DESC");
-			}
-			
-		}
-		else{
-			postCursor = data_base.query("Post", null, null, null, null, null, "PubDate DESC");
-		}
-		
+
+		postCursor = data_base.query("Post", null, selection, null, null, null, "ViewCount ASC, PubDate DESC");
+
 		if(postCursor.moveToFirst()){
 			
 			do{
@@ -387,6 +339,48 @@ public class ApplicationDB extends SQLiteOpenHelper {
 		
 		postCursor.close();
 		
+	}
+
+	synchronized void loadPost(String taxonomy, String name) {
+		// Load Posts
+		String selection = null;
+		Cursor postCursor;
+		PostManager pm = PostManager.getInstance();
+		Post post;
+
+		// Clear List before adding.
+		pm.clearDBPostList();
+
+		if(taxonomy != null && name != null){
+
+			if(taxonomy.contentEquals("author")){
+				selection = "Author='" + name + "'";
+				postCursor = data_base.query("Post", null, selection, null, null, null, "ViewCount ASC, PubDate DESC");
+			}
+			else{
+				selection = "Taxonomy='" + taxonomy + "' AND Name='" + name + "'";
+				postCursor = data_base.query("PostTerm", null, selection, null, null, null, "ViewCount ASC, PubDate DESC");
+			}
+
+		}
+		else{
+			postCursor = data_base.query("Post", null, null, null, null, null, "ViewCount ASC, PubDate DESC");
+		}
+
+		if(postCursor.moveToFirst()){
+
+			do{
+
+				post = preparePostObject(postCursor);
+				pm.addPostToDBList(post);
+
+			}while(postCursor.moveToNext());
+
+
+		}
+
+		postCursor.close();
+
 	}
 
 	synchronized private Post preparePostObject(Cursor postCursor) {
@@ -405,7 +399,10 @@ public class ApplicationDB extends SQLiteOpenHelper {
 		
 		post.title = postCursor.getString(postCursor.getColumnIndex("Title"));
 		post.content = postCursor.getString(postCursor.getColumnIndex("PostContent"));
-		
+
+		post.isFavourite = postCursor.getInt(postCursor.getColumnIndex("IsFav"));
+		post.viewCount = postCursor.getInt(postCursor.getColumnIndex("ViewCount"));
+
 		selection = "PostId='" + post.Id + "'";
 		
 		// Get Meta Data

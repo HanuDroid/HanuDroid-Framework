@@ -239,6 +239,12 @@ public class Application {
 		appDB.loadPost(null,null);	// This will load all posts.
 		return PostManager.getInstance().getDBPostList();
 	}
+
+	// Get All Posts
+	public List<Post> getFavouritePosts(){
+		appDB.loadFavouritePost();	// This will load all favourite posts.
+		return PostManager.getInstance().getDBPostList();
+	}
 	
 	// Get Posts by Category
 	public List<Post> getPostsByCategory(String category){

@@ -24,6 +24,7 @@ import android.util.Log;
 public class Post {
 	
 	int Id;
+	int isFavourite, viewCount;
 	String author, title, content;
 	Date pubDate, modDate;
 	HashMap<String,String> metaData;
@@ -37,6 +38,8 @@ public class Post {
 		categories = new ArrayList<String>();
 		tags = new ArrayList<String>();
 		postComments = new ArrayList<PostComment>();
+		isFavourite = 0;
+		viewCount = 0;
 		
 	}
 
@@ -115,7 +118,9 @@ public class Post {
 					"Title=" + t + "," +
 					"PubDate='" + pubDate.getTime() + "'," +
 					"ModDate='" + modDate.getTime() + "'," +
-					"PostContent=" + c + "" +
+					"PostContent=" + c + "," +
+					"IsFav='" + isFavourite + "'," +
+					"ViewCount='" + viewCount + "'" +
 					"WHERE ID='" + Id + "'";
 			
 			queries.add(query);
@@ -159,14 +164,16 @@ public class Post {
 			// Post Query
 			String c = DatabaseUtils.sqlEscapeString(content);
 			String t = DatabaseUtils.sqlEscapeString(title);
-			query = "INSERT INTO Post (Id, PubDate, ModDate, Author, Title, PostContent) VALUES (" +
+			query = "INSERT INTO Post (Id, PubDate, ModDate, Author, Title, PostContent, IsFav, ViewCount) VALUES (" +
 					"'" + Id + "'," +
 					"'" + pubDate.getTime() + "'," + 
 					"'" + modDate.getTime() + "'," +
 					"'" + author + "'," +
 					"" + t + "," +
-					"" + c + ")";
-			
+					"" + c + "," +
+					"'" + isFavourite + "'," +
+					"'" + viewCount + "')";
+
 			queries.add(query);
 			
 			// Post Meta Data.
@@ -571,4 +578,50 @@ public class Post {
         }
         return has_tag;
     }
+
+    public boolean isFavourite(){
+		if(isFavourite == 1){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
+	public int getViewCount(){
+		return viewCount;
+	}
+
+	public boolean toggleFavourite(){
+
+		if(isFavourite == 1){
+			isFavourite = 0;
+		}
+		else{
+			isFavourite = 1;
+		}
+
+		String query;
+		ArrayList<String> queries = new ArrayList<String>();
+
+		query = "UPDATE Post SET IsFav = " + isFavourite + " WHERE ID='" + Id + "'";
+		queries.add(query);
+
+		ApplicationDB.getInstance().executeQueries(queries);
+
+		return isFavourite();
+	}
+
+	public void incrementViewCount(){
+
+		String query;
+		ArrayList<String> queries = new ArrayList<String>();
+
+		viewCount++;
+
+		query = "UPDATE Post SET ViewCount = " + viewCount + " WHERE ID='" + Id + "'";
+		queries.add(query);
+
+		ApplicationDB.getInstance().executeQueries(queries);
+	}
 }
