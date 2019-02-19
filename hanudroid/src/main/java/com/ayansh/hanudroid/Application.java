@@ -233,7 +233,12 @@ public class Application {
 		appDB.loadPost("category",category);	// This will load posts for category
 		return PostManager.getInstance().getDBPostList();
 	}
-	
+
+	// Get a Random Post
+	public  Post getRandomPostFromDB(){
+		return appDB.getRandomPostFromDB();	// This will load a random post
+	}
+
 	// Get All Posts
 	public List<Post> getAllPosts(){
 		appDB.loadPost(null,null);	// This will load all posts.

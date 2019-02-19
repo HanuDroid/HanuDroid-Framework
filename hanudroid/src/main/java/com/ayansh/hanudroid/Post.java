@@ -612,12 +612,12 @@ public class Post {
 		return isFavourite();
 	}
 
-	public void incrementViewCount(){
+	public void incrementViewCount(int counter){
 
 		String query;
 		ArrayList<String> queries = new ArrayList<String>();
 
-		viewCount++;
+		viewCount = viewCount + counter;
 
 		query = "UPDATE Post SET ViewCount = " + viewCount + " WHERE ID='" + Id + "'";
 		queries.add(query);

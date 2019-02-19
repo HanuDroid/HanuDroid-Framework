@@ -313,6 +313,20 @@ public class ApplicationDB extends SQLiteOpenHelper {
 		
 	}
 
+	synchronized Post getRandomPostFromDB() {
+
+		Cursor postCursor;
+		Post post = new Post();
+
+		postCursor = data_base.query("Post", null, null, null, null, null, "ViewCount ASC, PubDate DESC", "1");
+
+		if(postCursor.moveToFirst()){
+			post = preparePostObject(postCursor);
+		}
+		postCursor.close();
+		return post;
+	}
+
 	synchronized void loadFavouritePost() {
 		// Load Favourite Posts
 		String selection = "IsFav=1";
