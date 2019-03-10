@@ -48,10 +48,16 @@ public class PostXMLParser extends DefaultHandler {
 			}
 			
 			post.author = attributes.getValue("Author");
+			post.name = attributes.getValue("PostName");
 			
 		}
 		
 		if(localName.contentEquals("PostTitle")){
+			reading = true;
+			content = "";
+		}
+
+		if(localName.contentEquals("PostExcerpt")){
 			reading = true;
 			content = "";
 		}
@@ -112,6 +118,11 @@ public class PostXMLParser extends DefaultHandler {
 		if(localName.contentEquals("PostTitle")){
 			reading = false;
 			post.title = content;
+		}
+
+		if(localName.contentEquals("PostExcerpt")){
+			reading = false;
+			post.excerpt = content;
 		}
 		
 		if(localName.contentEquals("CommentContent")){

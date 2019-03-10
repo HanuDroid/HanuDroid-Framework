@@ -23,7 +23,7 @@ public class ApplicationDB extends SQLiteOpenHelper {
 	
 	static ApplicationDB getInstance(Context context){
 		
-		DBVersion = 3;
+		DBVersion = 4;
 		String appName = Application.getApplicationName(context);
 		DBName = "HANU_" + appName + "_DB";
 		
@@ -107,35 +107,47 @@ public class ApplicationDB extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Nothing to do as of now.
 
+		List<String> queries = new ArrayList<String>();
+		String query;
+
+		// Prepare Queries.
 		switch (oldVersion){
 
 			case 2:
-				updatePostTable(db);
-				break;	// Add for now. Remove later on
+				Log.i(Application.TAG, "Upgrading Tables from Version: 2 to version 3");
+
+				query = "ALTER TABLE Post ADD COLUMN IsFav INTEGER DEFAULT 0";
+				queries.add(query);
+
+				query = "ALTER TABLE Post ADD COLUMN ViewCount INTEGER DEFAULT 0";
+				queries.add(query);
+
+			case 3:
+				Log.i(Application.TAG, "Upgrading Tables from Version: 3 to version 4");
+
+				query = "ALTER TABLE Post ADD COLUMN PostName VARCHAR(200)";
+				queries.add(query);
+
+				query = "ALTER TABLE Post ADD COLUMN PostExcerpt TEXT";
+				queries.add(query);
 
 			default:
 				break;
 
 		}
-	}
-
-	private void updatePostTable(SQLiteDatabase db){
 
 		try {
-			// Create Tables.
-			Log.i(Application.TAG, "Upgrading Tables from Version: 2 to version 3");
-
-			String addFavColumn = "ALTER TABLE Post ADD COLUMN IsFav INTEGER DEFAULT 0";
-			String addViewCountColumn = "ALTER TABLE Post ADD COLUMN ViewCount INTEGER DEFAULT 0";
-
-			db.execSQL(addFavColumn);
-			db.execSQL(addViewCountColumn);
-
-			Log.i(Application.TAG, "Upgrade of tables successfully");
+			// Execute Queries.
+			Iterator<String> iterator =  queries.listIterator();
+			while(iterator.hasNext()){
+				db.execSQL(iterator.next());
+			}
 
 		} catch (SQLException e) {
 			Log.e(Application.TAG, e.getMessage(), e);
 		}
+
+		Log.i(Application.TAG, "Upgrade of tables successfully");
 	}
 
 	private void createFTSTables(SQLiteDatabase db) throws SQLException{
@@ -199,10 +211,12 @@ public class ApplicationDB extends SQLiteOpenHelper {
 				"PubDate INTEGER, " + 			// PublishDate	Time in MilliSec
 				"ModDate INTEGER, " + 			// Modified Date
 				"Author VARCHAR(10), " + 		// Author
-				"Title VARCHAR(20), " +			// Title of post
+				"Title VARCHAR(200), " +			// Title of post
 				"PostContent TEXT, " +		 	// Post Content
 				"IsFav INTEGER, " + 			// Is Favourite
-				"ViewCount INTEGER" + 			// View Count
+				"ViewCount INTEGER, " + 		// View Count
+				"PostName VARCHAR(200), " + 	// Post Name
+				"PostExcerpt TEXT" + 			// Post Summary
 				")";
 		
 		return createPostsTable;
@@ -327,6 +341,21 @@ public class ApplicationDB extends SQLiteOpenHelper {
 		return post;
 	}
 
+	synchronized Post loadPostByName(String name) {
+
+		Cursor postCursor;
+		Post post = new Post();
+		String selection = "PostName='" + name + "'";
+
+		postCursor = data_base.query("Post", null, selection, null, null, null, null);
+
+		if(postCursor.moveToFirst()){
+			post = preparePostObject(postCursor);
+		}
+		postCursor.close();
+		return post;
+	}
+
 	synchronized void loadFavouritePost() {
 		// Load Favourite Posts
 		String selection = "IsFav=1";
@@ -353,6 +382,34 @@ public class ApplicationDB extends SQLiteOpenHelper {
 		
 		postCursor.close();
 		
+	}
+
+	synchronized void loadPostsInDateRange(long fromTime, long toTime) {
+		// Load Posts
+		String selection = "PubDate >='" + fromTime + "' AND PubDate <'" + toTime + "'";
+		Cursor postCursor;
+		PostManager pm = PostManager.getInstance();
+		Post post;
+
+		// Clear List before adding.
+		pm.clearDBPostList();
+
+		postCursor = data_base.query("Post", null, selection, null, null, null, "ViewCount ASC, PubDate DESC");
+
+		if(postCursor.moveToFirst()){
+
+			do{
+
+				post = preparePostObject(postCursor);
+				pm.addPostToDBList(post);
+
+			}while(postCursor.moveToNext());
+
+
+		}
+
+		postCursor.close();
+
 	}
 
 	synchronized void loadPost(String taxonomy, String name) {
@@ -413,6 +470,8 @@ public class ApplicationDB extends SQLiteOpenHelper {
 		
 		post.title = postCursor.getString(postCursor.getColumnIndex("Title"));
 		post.content = postCursor.getString(postCursor.getColumnIndex("PostContent"));
+		post.name = postCursor.getString(postCursor.getColumnIndex("PostName"));
+		post.excerpt = postCursor.getString(postCursor.getColumnIndex("PostExcerpt"));
 
 		post.isFavourite = postCursor.getInt(postCursor.getColumnIndex("IsFav"));
 		post.viewCount = postCursor.getInt(postCursor.getColumnIndex("ViewCount"));

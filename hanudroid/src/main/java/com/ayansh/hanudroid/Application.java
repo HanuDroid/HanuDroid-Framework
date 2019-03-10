@@ -214,12 +214,16 @@ public class Application {
 	}
 	
 	// Get all Options
-	public HashMap<String,String> getOptions(){
+	HashMap<String,String> getOptions(){
 		return Options;
 	}
 
 	public List<Post> getPostList(){
 		return PostManager.getInstance().getDBPostList();
+	}
+
+	public Post getPostById(int postID){
+		return PostManager.getInstance().getPostById(postID);
 	}
 	
 	// Search for Posts
@@ -228,9 +232,26 @@ public class Application {
 		return PostManager.getInstance().getDBPostList();
 	}
 	
-	// Load posts by Category
+	// Load posts by Category from DB
 	public List<Post> loadPostByCategory(String category){
 		appDB.loadPost("category",category);	// This will load posts for category
+		return PostManager.getInstance().getDBPostList();
+	}
+
+	// Load posts by Tag from DB
+	public List<Post> loadPostByTag(String tag){
+		appDB.loadPost("post_tag",tag);	// This will load posts for tag
+		return PostManager.getInstance().getDBPostList();
+	}
+
+	// Load Post by Name
+	public  Post loadPostByName(String name){
+		return appDB.loadPostByName(name);	// This will load a post by its name
+	}
+
+	// Load Posts in date range
+	public List<Post> loadPostsInDateRange(long fromTime, long toTime){
+		appDB.loadPostsInDateRange(fromTime,toTime);	// This will load a post in time range
 		return PostManager.getInstance().getDBPostList();
 	}
 
@@ -239,7 +260,7 @@ public class Application {
 		return appDB.getRandomPostFromDB();	// This will load a random post
 	}
 
-	// Get All Posts
+	// Get All Posts from DB
 	public List<Post> getAllPosts(){
 		appDB.loadPost(null,null);	// This will load all posts.
 		return PostManager.getInstance().getDBPostList();
@@ -274,7 +295,17 @@ public class Application {
 	public List<String> getTagsInCategories(String category){
 		return appDB.getTagsInCategories(category);
 	}
-	
+
+	// Read Parameter
+	public String readParameterValue(String name){
+
+		String value = Options.get(name);
+		if(value == null){
+			value = "";
+		}
+		return value;
+	}
+
 	// Add parameter
 	public boolean addParameter(String paramName, String paramValue){
 		

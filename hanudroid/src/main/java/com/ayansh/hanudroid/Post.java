@@ -25,7 +25,7 @@ public class Post {
 	
 	int Id;
 	int isFavourite, viewCount;
-	String author, title, content;
+	String author, title, content, name, excerpt;
 	Date pubDate, modDate;
 	HashMap<String,String> metaData;
 	List<String> categories, tags;
@@ -40,6 +40,7 @@ public class Post {
 		postComments = new ArrayList<PostComment>();
 		isFavourite = 0;
 		viewCount = 0;
+		name = excerpt = "";
 		
 	}
 
@@ -68,43 +69,48 @@ public class Post {
 		String subStr = "", replaceStr;
 		String fileName;
 		List<String> queries = new ArrayList<String>();
-		
-		do{
-			
-			start = content.indexOf("<a", newStart);
-			end = content.indexOf("</a>", newStart);
-			
-			if(start >= 0 && end > 0){
-				subStr = content.substring(start, end);
-			}
-			
-			if(start >= 0 && end > 0 && subStr.contains("<img")){
-				// We found something.
-				replaceStr = subStr = content.substring(start, end);
-				s = subStr.indexOf("src=\"") + 5;
-				e = subStr.indexOf('"' , s);
-				subStr = subStr.substring(s,e);	// This is Image URL.
-				
-				index = subStr.lastIndexOf(".");
-				fileName = subStr.substring(index, index + 4);
-				fileName = String.valueOf(Id) + "-" + counter + fileName;
-				
-				// Download Image.
-				downloadImage(subStr, fileName);
-					
-				// If download is success. Replace the File name
-				File dir = Application.getApplicationInstance().FilesDirectory;
-				File post_folder = new File(dir,String.valueOf(Id));
-				String imgSrc = "<img class=\"alignnone\" src=\"file:" + post_folder + "/" + fileName + "\">";
-				
-				content = content.replace(replaceStr, imgSrc);				
-				counter++;
-				
-			}
-			
-			newStart = end + 3;
-			
-		} while(start > 0 && end > 0);
+
+		// Download Images
+		if(Application.getApplicationInstance().readParameterValue("DownloadImages").contentEquals("X")) {
+
+			do {
+
+				start = content.indexOf("<a", newStart);
+				end = content.indexOf("</a>", newStart);
+
+				if (start >= 0 && end > 0) {
+					subStr = content.substring(start, end);
+				}
+
+				if (start >= 0 && end > 0 && subStr.contains("<img")) {
+					// We found something.
+					replaceStr = subStr = content.substring(start, end);
+					s = subStr.indexOf("src=\"") + 5;
+					e = subStr.indexOf('"', s);
+					subStr = subStr.substring(s, e);    // This is Image URL.
+
+					index = subStr.lastIndexOf(".");
+					fileName = subStr.substring(index, index + 4);
+					fileName = String.valueOf(Id) + "-" + counter + fileName;
+
+					// Download Image.
+					downloadImage(subStr, fileName);
+
+					// If download is success. Replace the File name
+					File dir = Application.getApplicationInstance().FilesDirectory;
+					File post_folder = new File(dir, String.valueOf(Id));
+					String imgSrc = "<img class=\"aligncenter image\" src=\"file:" + post_folder + "/" + fileName + "\">";
+
+					content = content.replace(replaceStr, imgSrc);
+					counter++;
+
+				}
+
+				newStart = end + 3;
+
+			} while (start > 0 && end > 0);
+
+		}
 		
 		// Now save to DB.
 		String query;
@@ -120,7 +126,9 @@ public class Post {
 					"ModDate='" + modDate.getTime() + "'," +
 					"PostContent=" + c + "," +
 					"IsFav='" + isFavourite + "'," +
-					"ViewCount='" + viewCount + "'" +
+					"ViewCount='" + viewCount + "'," +
+					"PostName='" + name + "'," +
+					"PostExcerpt='" + excerpt + "'" +
 					"WHERE ID='" + Id + "'";
 			
 			queries.add(query);
@@ -164,7 +172,7 @@ public class Post {
 			// Post Query
 			String c = DatabaseUtils.sqlEscapeString(content);
 			String t = DatabaseUtils.sqlEscapeString(title);
-			query = "INSERT INTO Post (Id, PubDate, ModDate, Author, Title, PostContent, IsFav, ViewCount) VALUES (" +
+			query = "INSERT INTO Post (Id, PubDate, ModDate, Author, Title, PostContent, IsFav, ViewCount, PostName, PostExcerpt) VALUES (" +
 					"'" + Id + "'," +
 					"'" + pubDate.getTime() + "'," + 
 					"'" + modDate.getTime() + "'," +
@@ -172,7 +180,9 @@ public class Post {
 					"" + t + "," +
 					"" + c + "," +
 					"'" + isFavourite + "'," +
-					"'" + viewCount + "')";
+					"'" + viewCount + "'," +
+					"'" + name + "'," +
+					"'" + excerpt + "')";
 
 			queries.add(query);
 			
@@ -306,6 +316,14 @@ public class Post {
 	
 	public String getTitle(){
 		return title;
+	}
+
+	public String getPostName(){
+		return name;
+	}
+
+	public String getPostExcerpt(){
+		return excerpt;
 	}
 	
 	public String getAuthor(){
